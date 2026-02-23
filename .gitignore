@@ -1,0 +1,49 @@
+# WordPress
+wp-config.php
+.htaccess
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+*.sublime-*
+*.sublime-workspace
+*.sublime-project
+
+# OS
+.DS_Store
+Thumbs.db
+*.tmp
+.directory
+
+# Logs
+*.log
+error_log
+debug.log
+
+# Backups
+*.backup
+*.bak
+*.old
+
+# Compiled
+*.map
+
+# Node
+node_modules/
+package-lock.json
+npm-debug.log
+
+# Composer
+vendor/
+composer.lock
+
+# Build files
+dist/
+build/
+
+# Tests
+.phpunit.result.cache
+tests/_output/
