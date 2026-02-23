@@ -50,6 +50,8 @@ class Chatbot_Quaxar_Settings {
             'primary_color' => '#0066CC',
             'secondary_color' => '#F0F4F8',
             'text_color' => '#FFFFFF',
+            'bot_text_color' => '#1f2937',
+            'user_text_color' => '#FFFFFF',
             'button_position' => 'bottom-right',
             'button_icon_type' => 'default',
             'button_icon_image' => '',              // URL de la imagen
@@ -133,6 +135,14 @@ class Chatbot_Quaxar_Settings {
         
         if (isset($input['text_color'])) {
             $sanitized['text_color'] = $this->sanitize_hex_color($input['text_color']);
+        }
+        
+        if (isset($input['bot_text_color'])) {
+            $sanitized['bot_text_color'] = $this->sanitize_hex_color($input['bot_text_color']);
+        }
+        
+        if (isset($input['user_text_color'])) {
+            $sanitized['user_text_color'] = $this->sanitize_hex_color($input['user_text_color']);
         }
         
         if (isset($input['input_border_color'])) {
@@ -245,6 +255,8 @@ class Chatbot_Quaxar_Settings {
             'primary_color' => $this->get_option('primary_color'),
             'secondary_color' => $this->get_option('secondary_color'),
             'text_color' => $this->get_option('text_color'),
+            'bot_text_color' => $this->get_option('bot_text_color'),
+            'user_text_color' => $this->get_option('user_text_color'),
             'button_position' => $this->get_option('button_position'),
             'button_icon_type' => $this->get_option('button_icon_type'),
             'button_icon_image' => $this->get_option('button_icon_image'),

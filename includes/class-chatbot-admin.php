@@ -109,8 +109,14 @@ class Chatbot_Quaxar_Admin {
         add_settings_field('secondary_color', __('Color Secundario', 'chatbot-quaxar'),
                           array($this, 'render_secondary_color_field'), 'chatbot-quaxar-config', 'chatbot_quaxar_customization_section');
         
-        add_settings_field('text_color', __('Color del Texto', 'chatbot-quaxar'),
+        add_settings_field('text_color', __('Color del Texto Principal', 'chatbot-quaxar'),
                           array($this, 'render_text_color_field'), 'chatbot-quaxar-config', 'chatbot_quaxar_customization_section');
+        
+        add_settings_field('bot_text_color', __('Color del Texto (Bot)', 'chatbot-quaxar'),
+                          array($this, 'render_bot_text_color_field'), 'chatbot-quaxar-config', 'chatbot_quaxar_customization_section');
+        
+        add_settings_field('user_text_color', __('Color del Texto (Usuario)', 'chatbot-quaxar'),
+                          array($this, 'render_user_text_color_field'), 'chatbot-quaxar-config', 'chatbot_quaxar_customization_section');
         
         add_settings_field('input_border_color', __('Color del Borde del Input', 'chatbot-quaxar'),
                           array($this, 'render_input_border_color_field'), 'chatbot-quaxar-config', 'chatbot_quaxar_customization_section');
@@ -298,7 +304,35 @@ class Chatbot_Quaxar_Admin {
                value="<?php echo esc_attr($value); ?>" 
                class="chatbot-color-picker">
         <p class="description">
-            <?php _e('Color del texto en el encabezado y botón principal.', 'chatbot-quaxar'); ?>
+            <?php _e('Color principal del texto (usado en el encabezado de la ventana y el botón flotante).', 'chatbot-quaxar'); ?>
+        </p>
+        <?php
+    }
+    
+    public function render_bot_text_color_field() {
+        $value = $this->settings->get_option('bot_text_color');
+        ?>
+        <input type="text" 
+               name="chatbot_quaxar_options[bot_text_color]" 
+               id="chatbot_quaxar_bot_text_color"
+               value="<?php echo esc_attr($value); ?>" 
+               class="chatbot-color-picker">
+        <p class="description">
+            <?php _e('Color del texto para las burbujas de mensajes que envía el bot.', 'chatbot-quaxar'); ?>
+        </p>
+        <?php
+    }
+    
+    public function render_user_text_color_field() {
+        $value = $this->settings->get_option('user_text_color');
+        ?>
+        <input type="text" 
+               name="chatbot_quaxar_options[user_text_color]" 
+               id="chatbot_quaxar_user_text_color"
+               value="<?php echo esc_attr($value); ?>" 
+               class="chatbot-color-picker">
+        <p class="description">
+            <?php _e('Color del texto para las burbujas de mensajes que escriben los usuarios.', 'chatbot-quaxar'); ?>
         </p>
         <?php
     }

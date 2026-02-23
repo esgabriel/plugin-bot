@@ -35,6 +35,10 @@ if (!defined('CHATBOT_QUAXAR_API_URL')) {
     define('CHATBOT_QUAXAR_API_URL', 'http://127.0.0.1:8000/api/chat');
 }
 
+if (!defined('CHATBOT_QUAXAR_API_KEY')) {
+    define('CHATBOT_QUAXAR_API_KEY', '');  // Se configura en wp-config.php
+}
+
 /**
  * Cargar las clases principales del plugin
  */
