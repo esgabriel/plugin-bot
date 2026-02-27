@@ -45,8 +45,17 @@ class Chatbot_Quaxar_Settings {
      */
     public function get_defaults() {
         return array(
+            'api_url' => defined('CHATBOT_QUAXAR_API_URL') ? CHATBOT_QUAXAR_API_URL : 'http://127.0.0.1:8000/api/chat',
+            'api_key' => defined('CHATBOT_QUAXAR_API_KEY') ? CHATBOT_QUAXAR_API_KEY : '',
             'site_id' => 'sitio_demo',
             'welcome_message' => '¡Hola! 👋 ¿En qué puedo ayudarte?',
+            'chatbot_name'    => 'Asistente Virtual',
+            'status_text'     => 'En línea',
+            'widget_enabled'  => '1',
+            'input_placeholder' => 'Type your message...',
+            'error_message'     => 'Sorry, something went wrong. Please try again.',
+            'visibility_mode'   => 'all',
+            'visibility_pages'  => '',
             'primary_color' => '#0066CC',
             'secondary_color' => '#F0F4F8',
             'text_color' => '#FFFFFF',
@@ -95,13 +104,31 @@ class Chatbot_Quaxar_Settings {
     /**
      * Obtener la URL de la API
      * 
-     * Esta URL NO es modificable por el usuario
-     * Se configura en wp-config.php o está hardcodeada
+     * Prioridad: valor guardado en BD > constante en wp-config.php
      * 
      * @return string URL de la API
      */
     public function get_api_url() {
-        return CHATBOT_QUAXAR_API_URL;
+        $saved = get_option($this->option_prefix . 'api_url', '');
+        if (!empty($saved)) {
+            return $saved;
+        }
+        return defined('CHATBOT_QUAXAR_API_URL') ? CHATBOT_QUAXAR_API_URL : '';
+    }
+    
+    /**
+     * Obtener la API Key
+     * 
+     * Prioridad: valor guardado en BD > constante en wp-config.php
+     * 
+     * @return string API Key
+     */
+    public function get_api_key() {
+        $saved = get_option($this->option_prefix . 'api_key', '');
+        if (!empty($saved)) {
+            return $saved;
+        }
+        return defined('CHATBOT_QUAXAR_API_KEY') ? CHATBOT_QUAXAR_API_KEY : '';
     }
     
     /**
@@ -113,6 +140,23 @@ class Chatbot_Quaxar_Settings {
     public function sanitize_settings($input) {
         $sanitized = array();
         
+        // URL de la API
+        if (isset($input['api_url'])) {
+            $url = esc_url_raw(trim($input['api_url']));
+            if (!empty($url) && substr($url, -9) !== '/api/chat') {
+                $url = rtrim($url, '/') . '/api/chat';
+            }
+            $sanitized['api_url'] = $url;
+        }
+        
+        // API Key — si viene vacía, no sobreescribir la existente
+        if (isset($input['api_key'])) {
+            $key = sanitize_text_field(trim($input['api_key']));
+            if (!empty($key)) {
+                $sanitized['api_key'] = $key;
+            }
+        }
+        
         // Site ID: solo letras, números, guiones y guiones bajos
         if (isset($input['site_id'])) {
             $sanitized['site_id'] = sanitize_text_field($input['site_id']);
@@ -122,6 +166,42 @@ class Chatbot_Quaxar_Settings {
         // Mensaje de bienvenida: permitir texto con emojis
         if (isset($input['welcome_message'])) {
             $sanitized['welcome_message'] = wp_kses_post($input['welcome_message']);
+        }
+        
+        // Nombre del chatbot
+        if (isset($input['chatbot_name'])) {
+            $sanitized['chatbot_name'] = sanitize_text_field($input['chatbot_name']);
+        }
+        
+        // Texto de estado
+        if (isset($input['status_text'])) {
+            $sanitized['status_text'] = sanitize_text_field($input['status_text']);
+        }
+        
+        // Widget habilitado — checkbox: si no viene en el input significa que está desmarcado
+        $sanitized['widget_enabled'] = isset($input['widget_enabled']) && $input['widget_enabled'] === '1' ? '1' : '0';
+        
+        // Placeholder del input
+        if (isset($input['input_placeholder'])) {
+            $sanitized['input_placeholder'] = sanitize_text_field($input['input_placeholder']);
+        }
+        
+        // Mensaje de error
+        if (isset($input['error_message'])) {
+            $sanitized['error_message'] = sanitize_text_field($input['error_message']);
+        }
+        
+        // Modo de visibilidad
+        if (isset($input['visibility_mode'])) {
+            $allowed_modes = array('all', 'include', 'exclude');
+            $sanitized['visibility_mode'] = in_array($input['visibility_mode'], $allowed_modes)
+                ? $input['visibility_mode']
+                : 'all';
+        }
+        
+        // Páginas de visibilidad
+        if (isset($input['visibility_pages'])) {
+            $sanitized['visibility_pages'] = sanitize_textarea_field($input['visibility_pages']);
         }
         
         // Colores: validar formato hexadecimal
@@ -226,6 +306,67 @@ class Chatbot_Quaxar_Settings {
     }
     
     /**
+     * Determinar si el widget debe mostrarse en la página actual
+     * 
+     * @return bool True si debe mostrarse
+     */
+    public function should_show_widget() {
+        $mode = $this->get_option('visibility_mode') ?: 'all';
+        
+        // Si el modo es "all", siempre mostrar
+        if ($mode === 'all') {
+            return true;
+        }
+        
+        // Obtener las páginas configuradas
+        $pages_raw = $this->get_option('visibility_pages');
+        if (empty($pages_raw)) {
+            // Si no hay páginas configuradas:
+            // - include sin páginas = no mostrar en ninguna
+            // - exclude sin páginas = mostrar en todas
+            return $mode === 'exclude';
+        }
+        
+        // Parsear las páginas (una por línea)
+        $pages = array_filter(array_map(function($line) {
+            $line = trim($line);
+            // Asegurar que empiece con /
+            if (!empty($line) && $line[0] !== '/') {
+                $line = '/' . $line;
+            }
+            return rtrim($line, '/');
+        }, explode("\n", $pages_raw)));
+        
+        if (empty($pages)) {
+            return $mode === 'exclude';
+        }
+        
+        // Obtener la ruta actual
+        $current_path = isset($_SERVER['REQUEST_URI']) ? $_SERVER['REQUEST_URI'] : '/';
+        $current_path = parse_url($current_path, PHP_URL_PATH);
+        $current_path = rtrim($current_path, '/');
+        
+        // La home es un caso especial
+        if (empty($current_path)) {
+            $current_path = '/';
+        }
+        
+        // Verificar si la ruta actual está en la lista
+        $is_in_list = false;
+        foreach ($pages as $page) {
+            $page_clean = empty($page) ? '/' : $page;
+            if ($current_path === $page_clean) {
+                $is_in_list = true;
+                break;
+            }
+        }
+        
+        // include: mostrar solo si está en la lista
+        // exclude: mostrar solo si NO está en la lista
+        return $mode === 'include' ? $is_in_list : !$is_in_list;
+    }
+    
+    /**
      * Obtener el tamaño del botón en píxeles
      * 
      * @return int Tamaño en píxeles
@@ -250,8 +391,16 @@ class Chatbot_Quaxar_Settings {
     public function get_all_settings() {
         return array(
             'api_url' => $this->get_api_url(),
+            'api_key' => $this->get_api_key(),
             'site_id' => $this->get_option('site_id'),
             'welcome_message' => $this->get_option('welcome_message'),
+            'chatbot_name'      => $this->get_option('chatbot_name'),
+            'status_text'       => $this->get_option('status_text'),
+            'widget_enabled'    => $this->get_option('widget_enabled'),
+            'input_placeholder' => $this->get_option('input_placeholder'),
+            'error_message'     => $this->get_option('error_message'),
+            'visibility_mode'   => $this->get_option('visibility_mode'),
+            'visibility_pages'  => $this->get_option('visibility_pages'),
             'primary_color' => $this->get_option('primary_color'),
             'secondary_color' => $this->get_option('secondary_color'),
             'text_color' => $this->get_option('text_color'),

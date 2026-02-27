@@ -36,9 +36,16 @@ class Chatbot_Quaxar_Frontend {
         );
 
         wp_enqueue_style(
+            'chatbot-quaxar-inter-font',
+            'https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap',
+            array(),
+            null
+        );
+
+        wp_enqueue_style(
             'chatbot-quaxar-widget',
             CHATBOT_QUAXAR_URL . 'public/css/chatbot-widget.css',
-            array(),
+            array('chatbot-quaxar-inter-font'),
             CHATBOT_QUAXAR_VERSION
         );
 
@@ -60,8 +67,12 @@ class Chatbot_Quaxar_Frontend {
         $config = array(
             'apiUrl' => $this->settings->get_api_url(),
             'siteId' => $this->settings->get_option('site_id'),
-            'apiKey' => defined('CHATBOT_QUAXAR_API_KEY') ? CHATBOT_QUAXAR_API_KEY : '',
+            'apiKey' => $this->settings->get_api_key(),
             'welcomeMessage' => $this->settings->get_option('welcome_message') ?: '¡Hola! 👋 ¿En qué puedo ayudarte?',
+            'chatbotName'   => $this->settings->get_option('chatbot_name')   ?: 'Asistente Virtual',
+            'statusText'    => $this->settings->get_option('status_text')    ?: 'En línea',
+            'inputPlaceholder' => $this->settings->get_option('input_placeholder') ?: 'Type your message...',
+            'errorMessage'     => $this->settings->get_option('error_message')     ?: 'Sorry, something went wrong. Please try again.',
             'primaryColor' => $this->settings->get_option('primary_color') ?: '#0066CC',
             'secondaryColor' => $this->settings->get_option('secondary_color') ?: '#F0F4F8',
             'textColor' => $this->settings->get_option('text_color') ?: '#FFFFFF',
@@ -71,6 +82,7 @@ class Chatbot_Quaxar_Frontend {
             'buttonIconType' => $this->settings->get_option('button_icon_type'),
             'buttonIconImage' => $this->settings->get_option('button_icon_image'),
             'buttonSize' => $this->settings->get_button_size_px(),
+            'inputBorderColor' => $this->settings->get_option('input_border_color') ?: '#0066CC',
             'pluginUrl' => CHATBOT_QUAXAR_URL,
             'nonce' => wp_create_nonce('chatbot_quaxar_nonce')
         );
@@ -88,8 +100,9 @@ class Chatbot_Quaxar_Frontend {
         $icon_type = $this->settings->get_option('button_icon_type');
         $custom_image = $this->settings->get_option('button_icon_image');
         ?>
+        <?php if ($this->settings->get_option('widget_enabled') !== '0' && $this->settings->should_show_widget()) : ?>
         <!-- Chatbot Quaxar IA -->
-        <div id="chatbot-quaxar-container" class="chatbot-quaxar-position-<?php echo esc_attr($button_position); ?>">
+        <div id="chatbot-quaxar-container" class="chatbot-quaxar-position-<?php echo esc_attr($button_position); ?>" style="--chatbot-input-border-color: <?php echo esc_attr($this->settings->get_option('input_border_color') ?: '#0066CC'); ?>;">
             
             <!-- Botón flotante -->
             <button id="chatbot-quaxar-toggle" 
@@ -133,8 +146,8 @@ class Chatbot_Quaxar_Frontend {
                             </svg>
                         </div>
                         <div class="chatbot-quaxar-title">
-                            <h3><?php esc_html_e('Asistente Virtual', 'chatbot-quaxar'); ?></h3>
-                            <span class="chatbot-quaxar-status"><?php esc_html_e('En línea', 'chatbot-quaxar'); ?></span>
+                            <h3><?php echo esc_html($this->settings->get_option('chatbot_name') ?: 'Asistente Virtual'); ?></h3>
+                            <span class="chatbot-quaxar-status"><?php echo esc_html($this->settings->get_option('status_text') ?: 'En línea'); ?></span>
                         </div>
                     </div>
                     <button id="chatbot-quaxar-close" 
@@ -158,7 +171,7 @@ class Chatbot_Quaxar_Frontend {
                         <input type="text" 
                                id="chatbot-quaxar-input" 
                                class="chatbot-quaxar-input"
-                               placeholder="<?php esc_attr_e('Escribe tu pregunta...', 'chatbot-quaxar'); ?>"
+                               placeholder="<?php echo esc_attr($this->settings->get_option('input_placeholder') ?: 'Type your message...'); ?>"
                                autocomplete="off">
                         <button type="submit" 
                                 class="chatbot-quaxar-send-btn"
@@ -176,6 +189,7 @@ class Chatbot_Quaxar_Frontend {
             
         </div>
         <!-- /Chatbot Quaxar IA -->
+        <?php endif; ?>
         <?php
     }
 }

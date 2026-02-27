@@ -61,7 +61,38 @@ class Chatbot_Quaxar_Admin {
             array($this, 'sanitize_callback')
         );
         
-        // Sección de configuración básica
+        // Sección 1 — Estado del Widget
+        add_settings_section(
+            'chatbot_quaxar_status_section',
+            __('Estado del Widget', 'chatbot-quaxar'),
+            array($this, 'render_status_section_info'),
+            'chatbot-quaxar-config'
+        );
+        
+        add_settings_field('widget_enabled', __('Activar Widget', 'chatbot-quaxar'),
+            array($this, 'render_widget_enabled_field'), 'chatbot-quaxar-config', 'chatbot_quaxar_status_section');
+        
+        add_settings_field('visibility_mode', __('Visibilidad del Widget', 'chatbot-quaxar'),
+            array($this, 'render_visibility_mode_field'), 'chatbot-quaxar-config', 'chatbot_quaxar_status_section');
+        
+        add_settings_field('visibility_pages', __('Páginas', 'chatbot-quaxar'),
+            array($this, 'render_visibility_pages_field'), 'chatbot-quaxar-config', 'chatbot_quaxar_status_section');
+        
+        // Sección 2 — Conexión con el Servidor
+        add_settings_section(
+            'chatbot_quaxar_connection_section',
+            __('Conexión con el Servidor', 'chatbot-quaxar'),
+            array($this, 'render_connection_section_info'),
+            'chatbot-quaxar-config'
+        );
+        
+        add_settings_field('api_url', __('URL del Servidor (API)', 'chatbot-quaxar'),
+            array($this, 'render_api_url_field'), 'chatbot-quaxar-config', 'chatbot_quaxar_connection_section');
+        
+        add_settings_field('api_key', __('Clave de Autenticación (API Key)', 'chatbot-quaxar'),
+            array($this, 'render_api_key_field'), 'chatbot-quaxar-config', 'chatbot_quaxar_connection_section');
+        
+        // Sección 3 — Configuración Básica
         add_settings_section(
             'chatbot_quaxar_basic_section',
             __('Configuración Básica', 'chatbot-quaxar'),
@@ -69,13 +100,25 @@ class Chatbot_Quaxar_Admin {
             'chatbot-quaxar-config'
         );
         
-        add_settings_field('site_id', __('ID del Sitio (Site ID)', 'chatbot-quaxar'), 
-                          array($this, 'render_site_id_field'), 'chatbot-quaxar-config', 'chatbot_quaxar_basic_section');
+        add_settings_field('chatbot_name', __('Nombre del Chatbot', 'chatbot-quaxar'),
+            array($this, 'render_chatbot_name_field'), 'chatbot-quaxar-config', 'chatbot_quaxar_basic_section');
         
-        add_settings_field('welcome_message', __('Mensaje de Bienvenida', 'chatbot-quaxar'), 
-                          array($this, 'render_welcome_message_field'), 'chatbot-quaxar-config', 'chatbot_quaxar_basic_section');
+        add_settings_field('status_text', __('Texto de Estado', 'chatbot-quaxar'),
+            array($this, 'render_status_text_field'), 'chatbot-quaxar-config', 'chatbot_quaxar_basic_section');
         
-        // Sección de personalización del botón
+        add_settings_field('site_id', __('ID del Sitio (Site ID)', 'chatbot-quaxar'),
+            array($this, 'render_site_id_field'), 'chatbot-quaxar-config', 'chatbot_quaxar_basic_section');
+        
+        add_settings_field('welcome_message', __('Mensaje de Bienvenida', 'chatbot-quaxar'),
+            array($this, 'render_welcome_message_field'), 'chatbot-quaxar-config', 'chatbot_quaxar_basic_section');
+        
+        add_settings_field('input_placeholder', __('Placeholder del Input', 'chatbot-quaxar'),
+            array($this, 'render_input_placeholder_field'), 'chatbot-quaxar-config', 'chatbot_quaxar_basic_section');
+        
+        add_settings_field('error_message', __('Mensaje de Error', 'chatbot-quaxar'),
+            array($this, 'render_error_message_field'), 'chatbot-quaxar-config', 'chatbot_quaxar_basic_section');
+        
+        // Sección 4 — Personalización del Botón
         add_settings_section(
             'chatbot_quaxar_button_section',
             __('Personalización del Botón', 'chatbot-quaxar'),
@@ -84,18 +127,18 @@ class Chatbot_Quaxar_Admin {
         );
         
         add_settings_field('button_icon_type', __('Tipo de Ícono', 'chatbot-quaxar'),
-                          array($this, 'render_button_icon_type_field'), 'chatbot-quaxar-config', 'chatbot_quaxar_button_section');
+            array($this, 'render_button_icon_type_field'), 'chatbot-quaxar-config', 'chatbot_quaxar_button_section');
         
         add_settings_field('button_icon_image', __('Imagen Personalizada', 'chatbot-quaxar'),
-                          array($this, 'render_button_icon_image_field'), 'chatbot-quaxar-config', 'chatbot_quaxar_button_section');
+            array($this, 'render_button_icon_image_field'), 'chatbot-quaxar-config', 'chatbot_quaxar_button_section');
         
         add_settings_field('button_size', __('Tamaño del Botón', 'chatbot-quaxar'),
-                          array($this, 'render_button_size_field'), 'chatbot-quaxar-config', 'chatbot_quaxar_button_section');
+            array($this, 'render_button_size_field'), 'chatbot-quaxar-config', 'chatbot_quaxar_button_section');
         
         add_settings_field('button_position', __('Posición del Botón', 'chatbot-quaxar'),
-                          array($this, 'render_button_position_field'), 'chatbot-quaxar-config', 'chatbot_quaxar_button_section');
+            array($this, 'render_button_position_field'), 'chatbot-quaxar-config', 'chatbot_quaxar_button_section');
         
-        // Sección de personalización de colores
+        // Sección 5 — Personalización de Colores
         add_settings_section(
             'chatbot_quaxar_customization_section',
             __('Personalización de Colores', 'chatbot-quaxar'),
@@ -104,22 +147,22 @@ class Chatbot_Quaxar_Admin {
         );
         
         add_settings_field('primary_color', __('Color Primario', 'chatbot-quaxar'),
-                          array($this, 'render_primary_color_field'), 'chatbot-quaxar-config', 'chatbot_quaxar_customization_section');
+            array($this, 'render_primary_color_field'), 'chatbot-quaxar-config', 'chatbot_quaxar_customization_section');
         
         add_settings_field('secondary_color', __('Color Secundario', 'chatbot-quaxar'),
-                          array($this, 'render_secondary_color_field'), 'chatbot-quaxar-config', 'chatbot_quaxar_customization_section');
+            array($this, 'render_secondary_color_field'), 'chatbot-quaxar-config', 'chatbot_quaxar_customization_section');
         
         add_settings_field('text_color', __('Color del Texto Principal', 'chatbot-quaxar'),
-                          array($this, 'render_text_color_field'), 'chatbot-quaxar-config', 'chatbot_quaxar_customization_section');
+            array($this, 'render_text_color_field'), 'chatbot-quaxar-config', 'chatbot_quaxar_customization_section');
         
         add_settings_field('bot_text_color', __('Color del Texto (Bot)', 'chatbot-quaxar'),
-                          array($this, 'render_bot_text_color_field'), 'chatbot-quaxar-config', 'chatbot_quaxar_customization_section');
+            array($this, 'render_bot_text_color_field'), 'chatbot-quaxar-config', 'chatbot_quaxar_customization_section');
         
         add_settings_field('user_text_color', __('Color del Texto (Usuario)', 'chatbot-quaxar'),
-                          array($this, 'render_user_text_color_field'), 'chatbot-quaxar-config', 'chatbot_quaxar_customization_section');
+            array($this, 'render_user_text_color_field'), 'chatbot-quaxar-config', 'chatbot_quaxar_customization_section');
         
         add_settings_field('input_border_color', __('Color del Borde del Input', 'chatbot-quaxar'),
-                          array($this, 'render_input_border_color_field'), 'chatbot-quaxar-config', 'chatbot_quaxar_customization_section');
+            array($this, 'render_input_border_color_field'), 'chatbot-quaxar-config', 'chatbot_quaxar_customization_section');
     }
     
     /**
@@ -133,8 +176,164 @@ class Chatbot_Quaxar_Admin {
         include CHATBOT_QUAXAR_PATH . 'admin/views/settings-page.php';
     }
     
+    public function render_status_section_info() {
+        echo '<p>' . __('Controla si el widget de chat es visible en el sitio. Desactívalo durante mantenimientos sin necesidad de desinstalar el plugin.', 'chatbot-quaxar') . '</p>';
+    }
+    
     public function render_basic_section_info() {
         echo '<p>' . __('Configura los ajustes básicos del chatbot.', 'chatbot-quaxar') . '</p>';
+    }
+    
+    public function render_chatbot_name_field() {
+        $value = $this->settings->get_option('chatbot_name');
+        ?>
+        <input type="text"
+               name="chatbot_quaxar_options[chatbot_name]"
+               id="chatbot_quaxar_chatbot_name"
+               value="<?php echo esc_attr($value); ?>"
+               class="regular-text"
+               placeholder="Asistente Virtual">
+        <p class="description">
+            <?php _e('Nombre que aparece en el encabezado de la ventana del chat.', 'chatbot-quaxar'); ?>
+        </p>
+        <?php
+    }
+    
+    public function render_status_text_field() {
+        $value = $this->settings->get_option('status_text');
+        ?>
+        <input type="text"
+               name="chatbot_quaxar_options[status_text]"
+               id="chatbot_quaxar_status_text"
+               value="<?php echo esc_attr($value); ?>"
+               class="regular-text"
+               placeholder="En línea">
+        <p class="description">
+            <?php _e('Texto que aparece debajo del nombre del chatbot. Ejemplos: "En línea", "Online", "Disponible 24/7".', 'chatbot-quaxar'); ?>
+        </p>
+        <?php
+    }
+    
+    public function render_widget_enabled_field() {
+        $value = $this->settings->get_option('widget_enabled');
+        ?>
+        <label>
+            <input type="checkbox"
+                   name="chatbot_quaxar_options[widget_enabled]"
+                   id="chatbot_quaxar_widget_enabled"
+                   value="1"
+                   <?php checked($value, '1'); ?>>
+            <?php _e('Mostrar el widget de chat en el sitio', 'chatbot-quaxar'); ?>
+        </label>
+        <p class="description">
+            <?php _e('Desactiva esta opción para ocultar el chatbot temporalmente sin desinstalar el plugin. Útil durante mantenimientos.', 'chatbot-quaxar'); ?>
+        </p>
+        <?php
+    }
+    
+    public function render_input_placeholder_field() {
+        $value = $this->settings->get_option('input_placeholder');
+        ?>
+        <input type="text"
+               name="chatbot_quaxar_options[input_placeholder]"
+               id="chatbot_quaxar_input_placeholder"
+               value="<?php echo esc_attr($value); ?>"
+               class="regular-text"
+               placeholder="Type your message...">
+        <p class="description">
+            <?php _e('Texto guía que aparece dentro del campo de texto cuando está vacío.', 'chatbot-quaxar'); ?>
+        </p>
+        <?php
+    }
+    
+    public function render_error_message_field() {
+        $value = $this->settings->get_option('error_message');
+        ?>
+        <textarea name="chatbot_quaxar_options[error_message]"
+                  id="chatbot_quaxar_error_message"
+                  rows="2"
+                  class="large-text"><?php echo esc_textarea($value); ?></textarea>
+        <p class="description">
+            <?php _e('Mensaje que ve el usuario cuando el servidor no responde o hay un error de conexión.', 'chatbot-quaxar'); ?>
+        </p>
+        <?php
+    }
+    
+    public function render_visibility_mode_field() {
+        $value = $this->settings->get_option('visibility_mode') ?: 'all';
+        ?>
+        <select name="chatbot_quaxar_options[visibility_mode]" id="chatbot_quaxar_visibility_mode">
+            <option value="all" <?php selected($value, 'all'); ?>>
+                <?php _e('Todas las páginas', 'chatbot-quaxar'); ?>
+            </option>
+            <option value="include" <?php selected($value, 'include'); ?>>
+                <?php _e('Solo en estas páginas', 'chatbot-quaxar'); ?>
+            </option>
+            <option value="exclude" <?php selected($value, 'exclude'); ?>>
+                <?php _e('En todas excepto estas', 'chatbot-quaxar'); ?>
+            </option>
+        </select>
+        <p class="description">
+            <?php _e('Controla en qué páginas aparece el widget del chatbot.', 'chatbot-quaxar'); ?>
+        </p>
+        <?php
+    }
+    
+    public function render_visibility_pages_field() {
+        $value = $this->settings->get_option('visibility_pages');
+        ?>
+        <textarea name="chatbot_quaxar_options[visibility_pages]"
+                  id="chatbot_quaxar_visibility_pages"
+                  rows="5"
+                  class="large-text"
+                  placeholder="/contacto&#10;/terminos&#10;/blog"><?php echo esc_textarea($value); ?></textarea>
+        <p class="description">
+            <?php _e('Escribe una ruta por línea (slug de la página). Ejemplos: <code>/contacto</code>, <code>/blog</code>, <code>/terminos-y-condiciones</code>. Usa <code>/</code> para la página de inicio.', 'chatbot-quaxar'); ?>
+        </p>
+        <?php
+    }
+    
+    public function render_connection_section_info() {
+        echo '<p>' . __('Configura la URL del servidor backend y la clave de autenticación. Estos datos te los proporciona el equipo técnico al instalar el servidor del chatbot.', 'chatbot-quaxar') . '</p>';
+    }
+    
+    public function render_api_url_field() {
+        $value = $this->settings->get_api_url();
+        ?>
+        <input type="url"
+               name="chatbot_quaxar_options[api_url]"
+               id="chatbot_quaxar_api_url"
+               value="<?php echo esc_attr($value); ?>"
+               class="regular-text"
+               placeholder="http://34.218.238.17:8000/api/chat">
+        <p class="description">
+            <?php _e('URL completa del servidor del chatbot. Debe terminar en <code>/api/chat</code>. Ejemplo: <code>http://34.218.238.17:8000/api/chat</code>', 'chatbot-quaxar'); ?>
+        </p>
+        <?php
+    }
+    
+    public function render_api_key_field() {
+        $has_key = !empty($this->settings->get_api_key());
+        ?>
+        <input type="password"
+               name="chatbot_quaxar_options[api_key]"
+               id="chatbot_quaxar_api_key"
+               value=""
+               class="regular-text"
+               autocomplete="new-password"
+               placeholder="<?php echo $has_key ? __('(clave guardada — escribe para cambiarla)', 'chatbot-quaxar') : __('Pega aquí la clave de autenticación', 'chatbot-quaxar'); ?>">
+        <button type="button"
+                onclick="var f=document.getElementById('chatbot_quaxar_api_key'); f.type=f.type==='password'?'text':'password';"
+                class="button">
+            <?php _e('Mostrar / Ocultar', 'chatbot-quaxar'); ?>
+        </button>
+        <?php if ($has_key): ?>
+            <span style="color:#00a32a; margin-left:8px;">✔ <?php _e('Clave guardada correctamente', 'chatbot-quaxar'); ?></span>
+        <?php endif; ?>
+        <p class="description">
+            <?php _e('Clave secreta que te proporciona el equipo técnico. Si dejas el campo vacío al guardar, la clave actual no cambia.', 'chatbot-quaxar'); ?>
+        </p>
+        <?php
     }
     
     public function render_button_section_info() {

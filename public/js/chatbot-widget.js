@@ -146,12 +146,14 @@
      * Cerrar chat
      */
     function closeChat() {
-        chatWindow.style.animation = 'chatbot-spring-out 0.22s ease-in both';
+        chatWindow.classList.remove('chatbot-quaxar-window-open');
+        chatWindow.classList.add('chatbot-quaxar-window-closing');
+
         setTimeout(function () {
-            chatWindow.classList.remove('chatbot-quaxar-window-open');
-            chatWindow.style.animation = '';
+            chatWindow.classList.remove('chatbot-quaxar-window-closing');
             toggleButton.classList.remove('chatbot-quaxar-toggle-active');
-        }, 200);
+        }, 220); // Debe coincidir con la duración de chatbot-slide-out en el CSS
+
         isOpen = false;
     }
 
@@ -190,7 +192,7 @@
         // Deshabilitar input y botón mientras se espera la respuesta
         chatInput.disabled = true;
         if (sendBtn) sendBtn.disabled = true;
-        chatInput.placeholder = 'Esperando respuesta...';
+        chatInput.placeholder = config.inputPlaceholder || 'Type your message...';
 
         // Mostrar indicador de "escribiendo..."
         displayTypingIndicator();
@@ -237,7 +239,7 @@
             isLoading = false;
             chatInput.disabled = false;
             if (sendBtn) sendBtn.disabled = false;
-            chatInput.placeholder = 'Escribe tu pregunta...';
+            chatInput.placeholder = config.inputPlaceholder || 'Type your message...';
             chatInput.focus();
         }
     }
@@ -313,10 +315,10 @@
      * Mostrar mensaje de error
      */
     function displayErrorMessage() {
-        displayMessage(
-            'Lo siento, hubo un error al procesar tu mensaje. Por favor, intenta de nuevo.',
-            'bot'
-        );
+        const message = (config.errorMessage && config.errorMessage.trim() !== '')
+            ? config.errorMessage
+            : 'Sorry, something went wrong. Please try again.';
+        displayMessage(message, 'bot');
     }
 
     /**

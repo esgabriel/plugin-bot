@@ -23,7 +23,34 @@
         // Mostrar/ocultar campo de imagen según el tipo seleccionado
         toggleCustomImageField();
 
+        // Mostrar/ocultar campo de slugs según la visibilidad seleccionada
+        toggleVisibilityField();
+
     });
+
+    /**
+     * Mostrar/ocultar campo de páginas según el modo de visibilidad
+     */
+    function toggleVisibilityField() {
+        var $select = $('#chatbot_quaxar_visibility_mode');
+        var $pagesRow = $('#chatbot_quaxar_visibility_pages').closest('tr');
+
+        function toggle() {
+            if ($select.val() === 'all') {
+                $pagesRow.hide();
+            } else {
+                $pagesRow.show();
+            }
+        }
+
+        // Evaluar estado inicial
+        toggle();
+
+        // Actualizar al cambiar
+        $select.on('change', function () {
+            toggle();
+        });
+    }
 
     /**
      * Inicializar WordPress Color Pickers
